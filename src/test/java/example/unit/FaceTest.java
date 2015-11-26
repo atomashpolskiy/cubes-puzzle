@@ -44,4 +44,19 @@ public class FaceTest {
         assertThat(edges2, hasEdges(expectedEdges2));
         assertThat(edges2, hasEdgesReversed(expectedEdges2));
     }
+
+    @Test(expected = Exception.class)
+    public void incorrectEdge_AllSockets() {
+        new Face(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 5);
+    }
+
+    @Test(expected = Exception.class)
+    public void incorrectEdge_AllPlugs() {
+        new Face(new byte[] {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, 5);
+    }
+
+    @Test(expected = Exception.class)
+    public void incorrectEdge_OneEdgeAllSockets() {
+        new Face(new byte[] {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, 5);
+    }
 }

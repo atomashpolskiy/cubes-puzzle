@@ -2,7 +2,6 @@ package example;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -17,7 +16,7 @@ import java.util.NoSuchElementException;
  * has a total of 5 points: socket, plug, socket, plug, socket.
  *
  * All edges of a face must have the same length m.
- * Each pair of adjacent edges share a common point, which is called a "vertice".
+ * Each pair of adjacent edges share a common point, which is called a "vertex".
  * Thus, the total number of points for all edges is equal to (4*m - 4).
  * E.g. a face with edges of length 5 has (4*5 - 4) = 16 points in total.
  *
@@ -34,9 +33,8 @@ public class Face {
     private List<Edge> edgeList;
 
     /**
-     * @param edges Sequence of connection points for all edges of the face, in geometrical (traversal) order.
-     *              The first element must be a vertice.
-     *              It does not matter if points are listed in clockwise or counter-clockwise order.
+     * @param edges Sequence of connection points for all edges of the face, in clockwise order.
+     *              The first element must be a vertex.
      * @param edgeSize Length of an edge.
      */
     public Face(byte[] edges, int edgeSize) {
@@ -64,7 +62,12 @@ public class Face {
         return edgeList;
     }
 
-    public Collection<Edge> getEdges() {
+    /**
+     * @return List of edges in clockwise order.
+     * First edge is the one that starts with the first vertex in the list of vertices,
+     * that was used to construct this face.
+     */
+    public List<Edge> getEdges() {
         return edgeList;
     }
 
@@ -76,12 +79,25 @@ public class Face {
         DefaultEdge(int startingPoint, int size) {
             this.startingPoint = startingPoint;
             this.endingPoint = startingPoint + size - 1;
+
+            boolean hasDifferentPointTypes = false;
+            for (int i = startingPoint; i < endingPoint; i++) {
+                if (edges[i] != edges[i + 1]) {
+                    hasDifferentPointTypes = true;
+                    break;
+                }
+            }
+            if (!hasDifferentPointTypes) {
+                throw new IllegalStateException("Invalid edge: all points are " + (edges[0] == 0? "sockets" : "plugs"));
+            }
         }
 
+        @Override
         public byte[] asArray() {
             return Arrays.copyOfRange(edges, startingPoint, endingPoint + 1);
         }
 
+        @Override
         public Iterator<Byte> getPoints() {
             return new Iterator<Byte>() {
 
