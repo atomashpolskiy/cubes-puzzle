@@ -75,10 +75,12 @@ public class Face {
 
         private final int startingPoint;
         private final int endingPoint;
+        private final int size;
 
         DefaultEdge(int startingPoint, int size) {
             this.startingPoint = startingPoint;
             this.endingPoint = startingPoint + size - 1;
+            this.size = size;
 
             boolean hasDifferentPointTypes = false;
             for (int i = startingPoint; i < endingPoint; i++) {
@@ -90,6 +92,11 @@ public class Face {
             if (!hasDifferentPointTypes) {
                 throw new IllegalStateException("Invalid edge: all points are " + (edges[0] == 0? "sockets" : "plugs"));
             }
+        }
+
+        @Override
+        public int getSize() {
+            return size;
         }
 
         @Override
@@ -143,6 +150,11 @@ public class Face {
                     throw new RuntimeException("Can't remove points from the edge");
                 }
             };
+        }
+
+        @Override
+        public String toString() {
+            return Arrays.toString(asArray());
         }
     }
 }

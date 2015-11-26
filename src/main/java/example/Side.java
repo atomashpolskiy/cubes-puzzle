@@ -10,4 +10,5 @@ public interface Side {
     Face getFace();
     void removeFace();
     Edge getEdge(CubeVertex vertex);
+    boolean hasVertex(CubeVertex vertex);
 }

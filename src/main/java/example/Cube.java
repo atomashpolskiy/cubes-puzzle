@@ -219,9 +219,14 @@ public class Cube {
             //  then edge's index is (4 - [junction point index] + [vertex index]) % 4
             return face.getEdges().get((4 - junctionPoint + vertices.indexOf(vertex)) % 4);
         }
+
+        @Override
+        public boolean hasVertex(CubeVertex vertex) {
+            return vertices.contains(vertex);
+        }
     }
 
-    private static class CubeEdge {
+    private class CubeEdge {
 
         private Side s1, s2;
         private CubeVertex v1, v2;
@@ -246,27 +251,45 @@ public class Cube {
             return canConnect(edge1, edge2);
         }
 
-        private static boolean canConnect(Edge e1, Edge e2) {
+        private boolean canConnect(Edge e1, Edge e2) {
+
+            // sanity check
+            if (e1.getSize() != e2.getSize()) {
+                throw new IllegalStateException("Invalid cube configuration: edges have different lengths");
+            }
 
             Iterator<Byte> iter1 = e1.getPoints();
             Iterator<Byte> iter2 = e2.getPointsReverse();
 
-            while (iter1.hasNext() && iter2.hasNext()) {
+            int edgeSize = e1.getSize();
+            int i = 0;
+            while (iter1.hasNext()) {
                 // check that one point is a plug and another is a socket
-                // TODO: need to treat cube's vertices in a special way:
-                // if it's a socket in the faces that are currently compared,
-                // then we must check if it's occupied by
-                // the third face, that is adjacent with this vertex.
-                if (iter1.next().equals(iter2.next())) {
-                    return false;
+                Byte p1 = iter1.next(), p2 = iter2.next();
+                if (p1.equals(p2)) {
+                    if (p1 == 0 && p2 == 0 && ((i == 0) || (i == edgeSize-1))) {
+                        // special case here: cube's vertex
+                        // even if compared face's edges both have sockets,
+                        // there's still two adjacent cube's edges,
+                        // that might have a plug in this point
+                        // -- need to check
+                        CubeVertex vertex = (i == 0)? v1 : v2;
+                        boolean hasPlug = false;
+                        for (Side side : sides) {
+                            if (side.hasVertex(vertex)) {
+                                Edge edge = side.getEdge(vertex);
+                                hasPlug = edge.getPoints().next() == 1;
+                            }
+                        }
+                        if (!hasPlug) {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
                 }
+                i++;
             }
-
-            // sanity check
-            if (iter1.hasNext() || iter2.hasNext()) {
-                throw new IllegalStateException("Invalid cube configuration: edges have different lengths");
-            }
-
             return true;
         }
     }
