@@ -101,7 +101,11 @@ public class Face {
 
         @Override
         public byte[] asArray() {
-            return Arrays.copyOfRange(edges, startingPoint, endingPoint + 1);
+            byte[] points = Arrays.copyOfRange(edges, startingPoint, endingPoint + 1);
+            if (endingPoint == edges.length) {
+                points[points.length - 1] = edges[0];
+            }
+            return points;
         }
 
         @Override

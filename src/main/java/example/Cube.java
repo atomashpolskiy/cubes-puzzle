@@ -279,6 +279,9 @@ public class Cube {
                             if (side.hasVertex(vertex)) {
                                 Edge edge = side.getEdge(vertex);
                                 hasPlug = edge.getPoints().next() == 1;
+                                if (hasPlug) {
+                                    break;
+                                }
                             }
                         }
                         if (!hasPlug) {
