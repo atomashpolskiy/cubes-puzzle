@@ -68,4 +68,30 @@ public class CubeTest {
         // all rotations must be unique
         assertEquals(4096, configurations.size());
     }
+
+    @Test
+    public void visitRotations_InitialStatePreserved() {
+
+        Cube cube = new Cube();
+        List<Side> sides = new ArrayList<>(cube.getSides().values());
+        sides.get(0).setFace(new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
+        sides.get(1).setFace(new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
+        sides.get(2).setFace(new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
+        sides.get(3).setFace(new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
+        sides.get(4).setFace(new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
+        sides.get(5).setFace(new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
+
+        CubeVisitor visitor = new CubeVisitor() {
+            @Override
+            public void visit(Cube cube) {
+                // do nothing..
+            }
+        };
+
+        Configuration before = Configuration.fromCube(cube);
+        cube.visitRotations(visitor);
+        Configuration after = Configuration.fromCube(cube);
+
+        assertTrue(before.equals(after));
+    }
 }
