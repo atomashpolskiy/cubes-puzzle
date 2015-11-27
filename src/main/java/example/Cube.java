@@ -30,30 +30,30 @@ import java.util.Map;
  */
 public class Cube {
 
-    private final List<Side> sides;
+    private final Map<CubeSide, Side> sides;
     private final int sidesCount;
     private Map<Side, SideEdges> sideEdges;
 
     {
-        sides = new ArrayList<>(6 + 1);
+        sides = new HashMap<>((int)(6 / 0.75));
         // upper side
         Side upperSide = new DefaultSide(CubeVertex.UWN, CubeVertex.UEN, CubeVertex.UES, CubeVertex.UWS);
-        sides.add(upperSide);
+        sides.put(CubeSide.UPPER, upperSide);
         // bottom side
         Side bottomSide = new DefaultSide(CubeVertex.DEN, CubeVertex.DWN, CubeVertex.DWS, CubeVertex.DES);
-        sides.add(bottomSide);
+        sides.put(CubeSide.BOTTOM, bottomSide);
         // northern side
         Side northernSide = new DefaultSide(CubeVertex.UEN, CubeVertex.UWN, CubeVertex.DWN, CubeVertex.DEN);
-        sides.add(northernSide);
+        sides.put(CubeSide.NORTHERN, northernSide);
         // southern side
         Side southernSide = new DefaultSide(CubeVertex.UWS, CubeVertex.UES, CubeVertex.DES, CubeVertex.DWS);
-        sides.add(southernSide);
+        sides.put(CubeSide.SOUTHERN, southernSide);
         // eastern side
         Side easternSide = new DefaultSide(CubeVertex.UES, CubeVertex.UEN, CubeVertex.DEN, CubeVertex.DES);
-        sides.add(easternSide);
+        sides.put(CubeSide.EASTERN, easternSide);
         // western side
         Side westernSide = new DefaultSide(CubeVertex.UWN, CubeVertex.UWS, CubeVertex.DWS, CubeVertex.DWN);
-        sides.add(westernSide);
+        sides.put(CubeSide.WESTERN, westernSide);
 
         sidesCount = sides.size();
 
@@ -79,7 +79,7 @@ public class Cube {
         sideEdges.put(westernSide, new SideEdges(UW, DW, WS, WN));
     }
 
-    public List<Side> getSides() {
+    public Map<CubeSide, Side> getSides() {
         return sides;
     }
 
@@ -102,7 +102,7 @@ public class Cube {
      */
     public boolean isComplete() {
 
-        for (Side side : sides) {
+        for (Side side : sides.values()) {
             if (!side.isOccupied()) {
                 return false;
             }
@@ -121,22 +121,23 @@ public class Cube {
             throw new IllegalStateException("Cube is not complete");
         }
 
-        visitRotations(visitor, 0);
+        List<Side> sideList = new ArrayList<>(sides.values());
+        visitRotations(visitor, sideList, 0);
     }
 
-    private void visitRotations(CubeVisitor visitor, int fixedCount) {
+    private void visitRotations(CubeVisitor visitor, List<Side> sideList, int fixedCount) {
 
         if (fixedCount == sidesCount) {
             visitor.visit(this);
         } else {
-            DefaultSide side = (DefaultSide) sides.get(fixedCount);
-            visitRotations(visitor, fixedCount + 1);
+            DefaultSide side = (DefaultSide) sideList.get(fixedCount);
+            visitRotations(visitor, sideList, fixedCount + 1);
             side.rotate();
-            visitRotations(visitor, fixedCount + 1);
+            visitRotations(visitor, sideList, fixedCount + 1);
             side.rotate();
-            visitRotations(visitor, fixedCount + 1);
+            visitRotations(visitor, sideList, fixedCount + 1);
             side.rotate();
-            visitRotations(visitor, fixedCount + 1);
+            visitRotations(visitor, sideList, fixedCount + 1);
             side.rotate(); // return to initial position
         }
     }
@@ -167,6 +168,15 @@ public class Cube {
         @Override
         public boolean isOccupied() {
             return face != null && junctionPoint >= 0;
+        }
+
+        @Override
+        public int getRotationFactor() {
+
+            if (!isOccupied()) {
+                throw new IllegalStateException("Failed to get face's edge: side is unoccupied");
+            }
+            return junctionPoint;
         }
 
         @Override
@@ -275,7 +285,7 @@ public class Cube {
                         // -- need to check
                         CubeVertex vertex = (i == 0)? v1 : v2;
                         boolean hasPlug = false;
-                        for (Side side : sides) {
+                        for (Side side : sides.values()) {
                             if (side.hasVertex(vertex)) {
                                 Edge edge = side.getEdge(vertex);
                                 hasPlug = edge.getPoints().next() == 1;
@@ -309,6 +319,9 @@ public class Cube {
 
         public boolean isConnected() {
 
+            boolean isConnected = this.isConnected;
+            // TODO: this causes some weird behaviour when solving all 720 possible cube configurations
+            // need to check later..
             if (isChanged) {
                 for (CubeEdge cubeEdge : cubeEdges) {
                     isConnected = cubeEdge.isConnected();
@@ -316,9 +329,10 @@ public class Cube {
                         break;
                     }
                 }
+                isChanged = false;
             }
 
-            isChanged = false;
+            this.isConnected = isConnected;
             return isConnected;
         }
 
