@@ -322,7 +322,7 @@ public class Cube {
             boolean isConnected = this.isConnected;
             // TODO: this causes some weird behaviour when solving all 720 possible cube configurations
             // need to check later..
-            if (isChanged) {
+//            if (isChanged) {
                 for (CubeEdge cubeEdge : cubeEdges) {
                     isConnected = cubeEdge.isConnected();
                     if (!isConnected) {
@@ -330,7 +330,7 @@ public class Cube {
                     }
                 }
                 isChanged = false;
-            }
+//            }
 
             this.isConnected = isConnected;
             return isConnected;
