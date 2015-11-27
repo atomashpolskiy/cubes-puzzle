@@ -161,4 +161,9 @@ public class Face {
             return Arrays.toString(asArray());
         }
     }
+
+    @Override
+    public String toString() {
+        return getEdges().toString();
+    }
 }
