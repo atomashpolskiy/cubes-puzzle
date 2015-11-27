@@ -118,7 +118,7 @@ public class Cube {
     public void visitRotations(CubeVisitor visitor) {
 
         if (!isComplete()) {
-            throw new IllegalStateException("Cube is not complete");
+            throw new IllegalStateException("Can't visit rotations: cube is not complete");
         }
 
         List<Side> sideList = new ArrayList<>(sides.values());
@@ -174,7 +174,7 @@ public class Cube {
         public int getRotationFactor() {
 
             if (!isOccupied()) {
-                throw new IllegalStateException("Failed to get face's edge: side is unoccupied");
+                throw new IllegalStateException("Failed to get rotation factor: side is unoccupied");
             }
             return junctionPoint;
         }
@@ -182,6 +182,8 @@ public class Cube {
         @Override
         public void setFace(Face face) {
             this.face = face;
+            // face is always connected to the same vertex
+            // (defined by creator of DefaultEdge instance)
             this.junctionPoint = 0;
             sideEdges.get(this).setChanged();
         }
@@ -200,7 +202,7 @@ public class Cube {
         void rotate() {
 
             if (!isOccupied()) {
-                throw new IllegalStateException("Failed to get face's edge: side is unoccupied");
+                throw new IllegalStateException("Failed to rotate: side is unoccupied");
             }
 
             junctionPoint = (++junctionPoint % 4);
