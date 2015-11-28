@@ -15,7 +15,7 @@ public class Configuration {
         for (CubeSide sideType : CubeSide.values()) {
             Side cubeSide = cube.getSides().get(sideType);
             configuration.put(sideType,
-                    new RotatedFace(cubeSide.getFace(), cubeSide.getRotationFactor()));
+                    new RotatedFace(cubeSide.getFace(), cubeSide.getRotationFactor(), cubeSide.isFlipped()));
         }
 
         return new Configuration(configuration);
@@ -94,6 +94,8 @@ public class Configuration {
         return buildSymmetricConfigurations(horizontalRotations);
     }
 
+    // TODO: detect symmetry for flips (we can do a "real" flip and eliminate several duplicate configurations)
+    // by "real" flip we mean flip+rotation (in contrast with cube's flips)
     private static Set<Configuration> buildSymmetricConfigurations(List<Configuration> horizontalRotations) {
 
         Set<Configuration> configurations = new HashSet<>((int)(horizontalRotations.size() * 6 / 0.75));
@@ -173,7 +175,7 @@ public class Configuration {
                 rotationFactor = rotationFactor % 4;
             }
             configuration.put(shift.getTo(),
-                    new RotatedFace(rotatedFace.getFace(), rotationFactor));
+                    new RotatedFace(rotatedFace.getFace(), rotationFactor, rotatedFace.isFlipped()));
         }
         return new Configuration(configuration);
     }

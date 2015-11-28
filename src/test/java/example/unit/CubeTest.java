@@ -63,10 +63,10 @@ public class CubeTest {
 
         cube.visitRotations(visitor);
 
-        // # of cube rotations is equal to 4^6 = 4096 (see example.Cube description)
-        assertEquals(4096, rotationCount[0]);
+        // # of cube rotations is equal to 8^6 (see example.Cube description)
+        assertEquals((int)Math.pow(8, 6), rotationCount[0]);
         // all rotations must be unique
-        assertEquals(4096, configurations.size());
+        assertEquals((int)Math.pow(8, 6), configurations.size());
     }
 
     @Test

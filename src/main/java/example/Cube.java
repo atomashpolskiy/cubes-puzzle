@@ -111,7 +111,9 @@ public class Cube {
     }
 
     /**
-     * Visit all 4^6 possible rotations of this cube.
+     * Visit all 8^6 or 4^6 possible rotations of this cube
+     * (in case when flips are enabled or disabled, respectively)
+     *
      * When this routine returns, the cube will in the same state
      * as it was prior to calling the routine.
      */
@@ -130,15 +132,16 @@ public class Cube {
         if (fixedCount == sidesCount) {
             visitor.visit(this);
         } else {
+
             DefaultSide side = (DefaultSide) sideList.get(fixedCount);
-            visitRotations(visitor, sideList, fixedCount + 1);
-            side.rotate();
-            visitRotations(visitor, sideList, fixedCount + 1);
-            side.rotate();
-            visitRotations(visitor, sideList, fixedCount + 1);
-            side.rotate();
-            visitRotations(visitor, sideList, fixedCount + 1);
-            side.rotate(); // return to initial position
+            for (int i = 0; i < 4; i++) {
+                visitRotations(visitor, sideList, fixedCount + 1); // initial position, if i = 0
+                side.flip();
+                visitRotations(visitor, sideList, fixedCount + 1);
+                side.flip();
+
+                side.rotate(); // return to initial position, if i = 3
+            }
         }
     }
 
@@ -156,6 +159,7 @@ public class Cube {
          * Values: 0,1,2,3 or -1 if this side is unoccupied.
          */
         private int junctionPoint = -1;
+        private boolean flipped;
         private Face face;
 
         /**
@@ -180,11 +184,17 @@ public class Cube {
         }
 
         @Override
+        public boolean isFlipped() {
+            return flipped;
+        }
+
+        @Override
         public void setFace(Face face) {
             this.face = face;
             // face is always connected to the same vertex
             // (defined by creator of DefaultEdge instance)
             this.junctionPoint = 0;
+            this.flipped = false;
             sideEdges.get(this).setChanged();
         }
 
@@ -209,6 +219,13 @@ public class Cube {
             sideEdges.get(this).setChanged();
         }
 
+        void flip() {
+            // in reality flip would also involve rotating the face by 90',
+            // but we don't really care about this; by flipping the face,
+            // we just indicate that it should be traversed in reverse order
+            flipped = !flipped;
+        }
+
         /**
          * @return Edge of the occupying face, that begins with the specified vertex.
          * @throws IllegalStateException if side is unoccupied.
@@ -229,7 +246,11 @@ public class Cube {
             // is just the index of the vertex, passed as an argument.
             // If the face is rotated,
             //  then edge's index is (4 - [junction point index] + [vertex index]) % 4
-            return face.getEdges().get((4 - junctionPoint + vertices.indexOf(vertex)) % 4);
+            int edgeIndex = (4 - junctionPoint + vertices.indexOf(vertex)) % 4;
+            if (flipped) {
+                edgeIndex = Math.abs(edgeIndex - 3);
+            }
+            return face.getEdges().get(edgeIndex);
         }
 
         @Override
@@ -257,21 +278,23 @@ public class Cube {
         }
 
         boolean isConnected() {
-
-            Edge edge1 = s1.getEdge(v1);
-            Edge edge2 = s2.getEdge(v2);
-            return canConnect(edge1, edge2);
+            return canConnect(s1, s2);
         }
 
-        private boolean canConnect(Edge e1, Edge e2) {
+        private boolean canConnect(Side s1, Side s2) {
+
+            Edge e1 = s1.getEdge(v1);
+            Edge e2 = s2.getEdge(v2);
 
             // sanity check
             if (e1.getSize() != e2.getSize()) {
                 throw new IllegalStateException("Invalid cube configuration: edges have different lengths");
             }
 
-            Iterator<Byte> iter1 = e1.getPoints();
-            Iterator<Byte> iter2 = e2.getPointsReverse();
+            // if two sides can connect in straight position,
+            // then they will also connect in flipped position
+            Iterator<Byte> iter1 = s1.isFlipped()? e1.getPointsReverse() : e1.getPoints();
+            Iterator<Byte> iter2 = s2.isFlipped()? e2.getPoints() : e2.getPointsReverse();
 
             int edgeSize = e1.getSize();
             int i = 0;
@@ -290,7 +313,8 @@ public class Cube {
                         for (Side side : sides.values()) {
                             if (side.hasVertex(vertex)) {
                                 Edge edge = side.getEdge(vertex);
-                                hasPlug = edge.getPoints().next() == 1;
+                                Iterator<Byte> iter = side.isFlipped()? edge.getPointsReverse() : edge.getPoints();
+                                hasPlug = iter.next() == 1;
                                 if (hasPlug) {
                                     break;
                                 }

@@ -2,19 +2,27 @@ package example;
 
 import java.util.Arrays;
 
+// TODO: detect symm
 class RotatedFace implements RotatableFace {
 
     private Face face;
     private int rotationFactor;
-    private Object[] fields = new Object[2];
+    private boolean flipped;
+    private Object[] fields = new Object[3];
 
-    RotatedFace(Face face, int rotationFactor) {
+    RotatedFace(Face face, int rotationFactor, boolean flipped) {
         this.fields[0] = this.face = face;
         this.fields[1] = this.rotationFactor = rotationFactor;
+        this.fields[2] = this.flipped = flipped;
     }
 
     public int getRotationFactor() {
         return rotationFactor;
+    }
+
+    @Override
+    public boolean isFlipped() {
+        return flipped;
     }
 
     public Face getFace() {
@@ -43,6 +51,6 @@ class RotatedFace implements RotatableFace {
 
     @Override
     public String toString() {
-        return getFace().toString() + " : " + getRotationFactor();
+        return (flipped? "*" : "") + getFace().toString() + (flipped? "* : " : " : ") + getRotationFactor();
     }
 }
