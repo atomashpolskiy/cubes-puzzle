@@ -23,7 +23,7 @@ class HappyCubeSolver {
 
         List<Face> freeFaces = new LinkedList<>(faces);
         List<Side> fixedSides = new ArrayList<>(faces.size() + 1);
-        upperSide.setFace(freeFaces.remove(0));
+        cube.setFace(CubeSide.UPPER, freeFaces.remove(0));
         fixedSides.add(upperSide);
         fixedSides.add(bottomSide);
         fixedSides.add(southernSide);
@@ -33,8 +33,8 @@ class HappyCubeSolver {
             int j = i == 0? i + 1 : i - 1;
             Face bottomFace = freeFaces.remove(i);
             Face southernFace = freeFaces.remove(j);
-            bottomSide.setFace(bottomFace);
-            southernSide.setFace(southernFace);
+            cube.setFace(CubeSide.BOTTOM, bottomFace);
+            cube.setFace(CubeSide.SOUTHERN, southernFace);
             buildCubes(cube, freeFaces, 0, fixedSides);
             if (i > freeFaces.size()) {
                 freeFaces.add(bottomFace);
@@ -51,19 +51,20 @@ class HappyCubeSolver {
 
     private void buildCubes(Cube cube, List<Face> faces, int fixedCount, List<Side> fixedSides) {
 
-        List<Side> sides = new ArrayList<>(cube.getSides().values());
         if (cube.isComplete()) { // let the algorithm work even if there's no visitor
             if (visitor != null) {
                 visitor.visit(cube);
             }
         } else {
-            for (Side side : sides) {
+            for (Map.Entry<CubeSide, Side> entry : cube.getSides().entrySet()) {
+                CubeSide sideType = entry.getKey();
+                Side side = entry.getValue();
                 if (!fixedSides.contains(side)) {
                     Face face = faces.get(fixedCount);
-                    side.setFace(face);
+                    cube.setFace(sideType, face);
                     fixedSides.add(side);
                     buildCubes(cube, faces, fixedCount + 1, fixedSides);
-                    side.removeFace();
+                    cube.removeFace(sideType);
                     fixedSides.remove(side);
                 }
             }

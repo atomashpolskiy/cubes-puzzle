@@ -103,7 +103,7 @@ public class Cube {
     public boolean isComplete() {
 
         for (Side side : sides.values()) {
-            if (!side.isOccupied()) {
+            if (!((DefaultSide)side).isOccupied()) {
                 return false;
             }
         }
@@ -145,6 +145,14 @@ public class Cube {
         }
     }
 
+    public void setFace(CubeSide side, Face face) {
+        ((DefaultSide)sides.get(side)).setFace(face);
+    }
+
+    public void removeFace(CubeSide side) {
+        ((DefaultSide)sides.get(side)).removeFace();
+    }
+
     private class DefaultSide implements Side {
 
         private List<CubeVertex> vertices;
@@ -169,7 +177,6 @@ public class Cube {
             this.vertices = Arrays.asList(vertices);
         }
 
-        @Override
         public boolean isOccupied() {
             return face != null && junctionPoint >= 0;
         }
@@ -188,7 +195,6 @@ public class Cube {
             return flipped;
         }
 
-        @Override
         public void setFace(Face face) {
             this.face = face;
             // face is always connected to the same vertex
@@ -198,7 +204,6 @@ public class Cube {
             sideEdges.get(this).setChanged();
         }
 
-        @Override
         public void removeFace() {
             this.face = null;
             this.junctionPoint = -1;

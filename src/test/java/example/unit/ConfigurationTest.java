@@ -2,12 +2,10 @@ package example.unit;
 
 import example.Configuration;
 import example.Cube;
+import example.CubeSide;
 import example.Face;
-import example.Side;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -19,13 +17,12 @@ public class ConfigurationTest {
     public void fromSameCube_Equal() {
 
         Cube cube = new Cube();
-        List<Side> sides = new ArrayList<>(cube.getSides().values());
-        sides.get(0).setFace(new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
-        sides.get(1).setFace(new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
-        sides.get(2).setFace(new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
-        sides.get(3).setFace(new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
-        sides.get(4).setFace(new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
-        sides.get(5).setFace(new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
+        cube.setFace(CubeSide.UPPER, new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.BOTTOM, new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.WESTERN, new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.EASTERN, new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.NORTHERN, new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
+        cube.setFace(CubeSide.SOUTHERN, new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
 
         Configuration c1 = Configuration.fromCube(cube);
         Configuration c2 = Configuration.fromCube(cube);
@@ -37,13 +34,12 @@ public class ConfigurationTest {
     public void buildSymmetricConfigurations_AllDistinct() {
 
         Cube cube = new Cube();
-        List<Side> sides = new ArrayList<>(cube.getSides().values());
-        sides.get(0).setFace(new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
-        sides.get(1).setFace(new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
-        sides.get(2).setFace(new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
-        sides.get(3).setFace(new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
-        sides.get(4).setFace(new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
-        sides.get(5).setFace(new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
+        cube.setFace(CubeSide.UPPER, new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.BOTTOM, new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.WESTERN, new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.EASTERN, new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.NORTHERN, new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
+        cube.setFace(CubeSide.SOUTHERN, new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
 
         Set<Configuration> symmetricConfigurations =
                 Configuration.buildSymmetricConfigurations(Configuration.fromCube(cube));

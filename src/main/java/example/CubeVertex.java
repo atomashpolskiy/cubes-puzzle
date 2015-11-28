@@ -5,6 +5,6 @@ package example;
  * W for western side, E for eastern side
  * N for northern side, S for southern side
  */
-enum CubeVertex {
+public enum CubeVertex {
     UWS, UWN, UEN, UES, DES, DWS, DWN, DEN
 }

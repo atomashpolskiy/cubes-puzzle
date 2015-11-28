@@ -2,14 +2,14 @@ package example.unit;
 
 import example.Configuration;
 import example.Cube;
+import example.CubeSide;
 import example.CubeVisitor;
 import example.Face;
 import example.Side;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -20,8 +20,8 @@ public class CubeTest {
     @Test
     public void isComplete() {
         Cube cube = new Cube();
-        for (Side side : cube.getSides().values()) {
-            side.setFace(new Face(new byte[] {1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1}, 5));
+        for (Map.Entry<CubeSide, Side> entry : cube.getSides().entrySet()) {
+            cube.setFace(entry.getKey(), new Face(new byte[] {1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1}, 5));
         }
 
         assertTrue(cube.isComplete());
@@ -30,10 +30,9 @@ public class CubeTest {
     @Test(expected = Exception.class)
     public void isConnected_Exception() {
         Cube cube = new Cube();
-        List<Side> sides = new ArrayList<>(cube.getSides().values());
-        // do not set face for the "last" side
-        for (int i = 0; i < sides.size() - 1; i++) {
-            sides.get(i).setFace(new Face(new byte[]{1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1}, 5));
+        CubeSide[] sides = new CubeSide[]{CubeSide.NORTHERN, CubeSide.SOUTHERN, CubeSide.EASTERN, CubeSide.WESTERN};
+        for (CubeSide side : sides) {
+            cube.setFace(side, new Face(new byte[]{1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1}, 5));
         }
 
         cube.isConnected();
@@ -43,13 +42,12 @@ public class CubeTest {
     public void visitRotations() {
 
         Cube cube = new Cube();
-        List<Side> sides = new ArrayList<>(cube.getSides().values());
-        sides.get(0).setFace(new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
-        sides.get(1).setFace(new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
-        sides.get(2).setFace(new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
-        sides.get(3).setFace(new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
-        sides.get(4).setFace(new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
-        sides.get(5).setFace(new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
+        cube.setFace(CubeSide.UPPER, new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.BOTTOM, new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.WESTERN, new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.EASTERN, new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.NORTHERN, new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
+        cube.setFace(CubeSide.SOUTHERN, new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
 
         final Set<Configuration> configurations = new HashSet<>();
         final int[] rotationCount = new int[] {0, 0};
@@ -73,13 +71,12 @@ public class CubeTest {
     public void visitRotations_InitialStatePreserved() {
 
         Cube cube = new Cube();
-        List<Side> sides = new ArrayList<>(cube.getSides().values());
-        sides.get(0).setFace(new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
-        sides.get(1).setFace(new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
-        sides.get(2).setFace(new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
-        sides.get(3).setFace(new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
-        sides.get(4).setFace(new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
-        sides.get(5).setFace(new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
+        cube.setFace(CubeSide.UPPER, new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.BOTTOM, new Face(new byte[]{1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.WESTERN, new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.EASTERN, new Face(new byte[]{0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0}, 5));
+        cube.setFace(CubeSide.NORTHERN, new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
+        cube.setFace(CubeSide.SOUTHERN, new Face(new byte[]{0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1}, 5));
 
         CubeVisitor visitor = new CubeVisitor() {
             @Override
