@@ -37,22 +37,22 @@ public class Cube {
     {
         sides = new HashMap<>((int)(6 / 0.75));
         // upper side
-        Side upperSide = new DefaultSide(CubeVertex.UWN, CubeVertex.UEN, CubeVertex.UES, CubeVertex.UWS);
+        Side upperSide = new ModificationAwareSide(CubeVertex.UWN, CubeVertex.UEN, CubeVertex.UES, CubeVertex.UWS);
         sides.put(CubeSide.UPPER, upperSide);
         // bottom side
-        Side bottomSide = new DefaultSide(CubeVertex.DEN, CubeVertex.DWN, CubeVertex.DWS, CubeVertex.DES);
+        Side bottomSide = new ModificationAwareSide(CubeVertex.DEN, CubeVertex.DWN, CubeVertex.DWS, CubeVertex.DES);
         sides.put(CubeSide.BOTTOM, bottomSide);
         // northern side
-        Side northernSide = new DefaultSide(CubeVertex.UEN, CubeVertex.UWN, CubeVertex.DWN, CubeVertex.DEN);
+        Side northernSide = new ModificationAwareSide(CubeVertex.UEN, CubeVertex.UWN, CubeVertex.DWN, CubeVertex.DEN);
         sides.put(CubeSide.NORTHERN, northernSide);
         // southern side
-        Side southernSide = new DefaultSide(CubeVertex.UWS, CubeVertex.UES, CubeVertex.DES, CubeVertex.DWS);
+        Side southernSide = new ModificationAwareSide(CubeVertex.UWS, CubeVertex.UES, CubeVertex.DES, CubeVertex.DWS);
         sides.put(CubeSide.SOUTHERN, southernSide);
         // eastern side
-        Side easternSide = new DefaultSide(CubeVertex.UES, CubeVertex.UEN, CubeVertex.DEN, CubeVertex.DES);
+        Side easternSide = new ModificationAwareSide(CubeVertex.UES, CubeVertex.UEN, CubeVertex.DEN, CubeVertex.DES);
         sides.put(CubeSide.EASTERN, easternSide);
         // western side
-        Side westernSide = new DefaultSide(CubeVertex.UWN, CubeVertex.UWS, CubeVertex.DWS, CubeVertex.DWN);
+        Side westernSide = new ModificationAwareSide(CubeVertex.UWN, CubeVertex.UWS, CubeVertex.DWS, CubeVertex.DWN);
         sides.put(CubeSide.WESTERN, westernSide);
 
         sidesCount = sides.size();
@@ -103,7 +103,7 @@ public class Cube {
     public boolean isComplete() {
 
         for (Side side : sides.values()) {
-            if (!((DefaultSide)side).isOccupied()) {
+            if (!((ModificationAwareSide)side).isOccupied()) {
                 return false;
             }
         }
@@ -133,7 +133,7 @@ public class Cube {
             visitor.visit(this);
         } else {
 
-            DefaultSide side = (DefaultSide) sideList.get(fixedCount);
+            ModificationAwareSide side = (ModificationAwareSide) sideList.get(fixedCount);
             for (int i = 0; i < 4; i++) {
                 visitRotations(visitor, sideList, fixedCount + 1); // initial position, if i = 0
                 side.flip();
@@ -146,121 +146,36 @@ public class Cube {
     }
 
     public void setFace(CubeSide side, Face face) {
-        ((DefaultSide)sides.get(side)).setFace(face);
+        ((ModificationAwareSide)sides.get(side)).setFace(face);
     }
 
     public void removeFace(CubeSide side) {
-        ((DefaultSide)sides.get(side)).removeFace();
+        ((ModificationAwareSide)sides.get(side)).removeFace();
     }
 
-    private class DefaultSide implements Side {
-
-        private List<CubeVertex> vertices;
-        /**
-         * The side of a cube has junctions with the occupying face;
-         * each of the 4 vertices is a junction.
-         * Junction of the first vertex of the face and some vertex of the side
-         * is called a "junction point".
-         * The junction point is a starting point for controlling
-         * rotation of the face with regard to the containing cube.
-         *
-         * Values: 0,1,2,3 or -1 if this side is unoccupied.
-         */
-        private int junctionPoint = -1;
-        private boolean flipped;
-        private Face face;
+    private class ModificationAwareSide extends DefaultSide {
 
         /**
          * @param vertices List of vertices in traversal order.
          */
-        DefaultSide(CubeVertex... vertices) {
-            this.vertices = Arrays.asList(vertices);
-        }
-
-        public boolean isOccupied() {
-            return face != null && junctionPoint >= 0;
+        ModificationAwareSide(CubeVertex... vertices) {
+            super(Arrays.asList(vertices));
         }
 
         @Override
-        public int getRotationFactor() {
-
-            if (!isOccupied()) {
-                throw new IllegalStateException("Failed to get rotation factor: side is unoccupied");
-            }
-            return junctionPoint;
-        }
-
-        @Override
-        public boolean isFlipped() {
-            return flipped;
-        }
-
-        public void setFace(Face face) {
-            this.face = face;
-            // face is always connected to the same vertex
-            // (defined by creator of DefaultEdge instance)
-            this.junctionPoint = 0;
-            this.flipped = false;
+        protected void setFace(Face face) {
+            super.setFace(face);
             sideEdges.get(this).setChanged();
         }
 
-        public void removeFace() {
-            this.face = null;
-            this.junctionPoint = -1;
-        }
-
-        @Override
-        public Face getFace() {
-            return face;
-        }
-
-        void rotate() {
-
-            if (!isOccupied()) {
-                throw new IllegalStateException("Failed to rotate: side is unoccupied");
-            }
-
-            junctionPoint = (++junctionPoint % 4);
+        protected void rotate() {
+            super.rotate();
             sideEdges.get(this).setChanged();
         }
 
-        void flip() {
-            // in reality flip would also involve rotating the face by 90',
-            // but we don't really care about this; by flipping the face,
-            // we just indicate that it should be traversed in reverse order
-            flipped = !flipped;
-        }
-
-        /**
-         * @return Edge of the occupying face, that begins with the specified vertex.
-         * @throws IllegalStateException if side is unoccupied.
-         */
-        @Override
-        public Edge getEdge(CubeVertex vertex) {
-
-            if (!isOccupied()) {
-                throw new IllegalStateException("Failed to get face's edge: side is unoccupied");
-            }
-
-            if (!vertices.contains(vertex)) {
-                throw new IllegalArgumentException("Side does not have a vertex: " + vertex.name());
-            }
-
-            // Edge's index depends on the rotation of the face.
-            // If the face is not rotated (junction point is 0), then edge's index in face's list of edges
-            // is just the index of the vertex, passed as an argument.
-            // If the face is rotated,
-            //  then edge's index is (4 - [junction point index] + [vertex index]) % 4
-            int edgeIndex = (4 - junctionPoint + vertices.indexOf(vertex)) % 4;
-            if (flipped) {
-                edgeIndex = Math.abs(edgeIndex - 3);
-            }
-            return face.getEdges().get(edgeIndex);
-        }
-
-        @Override
-        public boolean hasVertex(CubeVertex vertex) {
-            return vertices.contains(vertex);
+        protected void flip() {
+            super.flip();
+            sideEdges.get(this).setChanged();
         }
     }
 

@@ -11,23 +11,24 @@ public class Configuration {
 
     public static Configuration fromCube(Cube cube) {
 
-        Map<CubeSide, RotatableFace> configuration = new HashMap<>((int)(6 / 0.75));
+        Map<CubeSide, SideConfiguration> configuration = new HashMap<>((int)(6 / 0.75));
         for (CubeSide sideType : CubeSide.values()) {
             Side cubeSide = cube.getSides().get(sideType);
             configuration.put(sideType,
-                    new RotatedFace(cubeSide.getFace(), cubeSide.getRotationFactor(), cubeSide.isFlipped()));
+                    new SideConfiguration(cubeSide.getVertices(), cubeSide.getFace(),
+                            cubeSide.getRotationFactor(), cubeSide.isFlipped()));
         }
 
         return new Configuration(configuration);
     }
 
-    public Map<CubeSide, RotatableFace> getSides() {
+    public Map<CubeSide, SideConfiguration> getSides() {
         return configuration;
     }
 
-    private Map<CubeSide, RotatableFace> configuration;
+    private Map<CubeSide, SideConfiguration> configuration;
 
-    private Configuration(Map<CubeSide, RotatableFace> configuration) {
+    private Configuration(Map<CubeSide, SideConfiguration> configuration) {
         this.configuration = configuration;
     }
 
@@ -44,13 +45,13 @@ public class Configuration {
         return ((Configuration)object).hasEqualConfiguration(configuration);
     }
 
-    boolean hasEqualConfiguration(Map<CubeSide, RotatableFace> solution) {
+    boolean hasEqualConfiguration(Map<CubeSide, SideConfiguration> solution) {
         return this.configuration.equals(solution);
     }
 
     public static Set<Configuration> buildSymmetricConfigurations(Configuration configuration) {
 
-        Map<CubeSide, RotatableFace> sides = configuration.getSides();
+        Map<CubeSide, SideConfiguration> sides = configuration.getSides();
 
         List<Configuration> horizontalRotations = new ArrayList<>(4 + 1);
         // add original solution
@@ -102,7 +103,7 @@ public class Configuration {
 
         for (Configuration horizontalRotation : horizontalRotations) {
 
-            Map<CubeSide, RotatableFace> sides = horizontalRotation.getSides();
+            Map<CubeSide, SideConfiguration> sides = horizontalRotation.getSides();
             // 3 clockwise rotations (U -> E -> B -> W); S & N rotating clockwise by 90' at a time
             configurations.add(buildConfiguration(sides,
                     new Shift(CubeSide.UPPER, CubeSide.EASTERN, 0),
@@ -163,11 +164,11 @@ public class Configuration {
         return configurations;
     }
 
-    private static Configuration buildConfiguration(Map<CubeSide, ? extends RotatableFace> horizontalRotation, Shift... shifts) {
+    private static Configuration buildConfiguration(Map<CubeSide, ? extends SideConfiguration> horizontalRotation, Shift... shifts) {
 
-        Map<CubeSide, RotatableFace> configuration = new HashMap<>((int)(6 / 0.75));
+        Map<CubeSide, SideConfiguration> configuration = new HashMap<>((int)(6 / 0.75));
         for (Shift shift : shifts) {
-            RotatableFace rotatedFace = horizontalRotation.get(shift.getFrom());
+            SideConfiguration rotatedFace = horizontalRotation.get(shift.getFrom());
             int rotationFactor = rotatedFace.getRotationFactor() + shift.getRotationFactor();
             if (rotationFactor < 0) {
                 rotationFactor = Math.abs(4 - Math.abs(rotationFactor)) % 4;
@@ -175,7 +176,8 @@ public class Configuration {
                 rotationFactor = rotationFactor % 4;
             }
             configuration.put(shift.getTo(),
-                    new RotatedFace(rotatedFace.getFace(), rotationFactor, rotatedFace.isFlipped()));
+                    new SideConfiguration(rotatedFace.getVertices(), rotatedFace.getFace(),
+                            rotationFactor, rotatedFace.isFlipped()));
         }
         return new Configuration(configuration);
     }
