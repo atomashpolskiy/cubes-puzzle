@@ -30,21 +30,25 @@ class HappyCubeSolver {
 
         int len = freeFaces.size();
         for (int i = 0; i < len; i++) {
-            int j = i == 0? i + 1 : i - 1;
             Face bottomFace = freeFaces.remove(i);
-            Face southernFace = freeFaces.remove(j);
-            cube.setFace(CubeSide.BOTTOM, bottomFace);
-            cube.setFace(CubeSide.SOUTHERN, southernFace);
-            buildCubes(cube, freeFaces, 0, fixedSides);
-            if (i > freeFaces.size()) {
+            for (int j = 0; j < len - 1; j++) {
+                if (i == j) {
+                    continue;
+                }
+                Face southernFace = freeFaces.remove(j);
+                cube.setFace(CubeSide.BOTTOM, bottomFace);
+                cube.setFace(CubeSide.SOUTHERN, southernFace);
+                buildCubes(cube, freeFaces, 0, fixedSides);
+                if (j >= freeFaces.size()) {
+                    freeFaces.add(southernFace);
+                } else {
+                    freeFaces.add(j, southernFace);
+                }
+            }
+            if (i >= freeFaces.size()) {
                 freeFaces.add(bottomFace);
             } else {
                 freeFaces.add(i, bottomFace);
-            }
-            if (j > freeFaces.size()) {
-                freeFaces.add(southernFace);
-            } else {
-                freeFaces.add(j, southernFace);
             }
         }
     }
