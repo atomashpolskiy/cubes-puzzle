@@ -44,12 +44,12 @@ public class ConfigurationTest {
         Set<Configuration> symmetricConfigurations =
                 Configuration.buildSymmetricConfigurations(Configuration.fromCube(cube));
 
-        assertEquals(24, symmetricConfigurations.size());
+        assertEquals(4, symmetricConfigurations.size());
 
         symmetricConfigurations.addAll(
                 Configuration.buildSymmetricConfigurations(Configuration.fromCube(cube))
         );
 
-        assertEquals(24, symmetricConfigurations.size());
+        assertEquals(4, symmetricConfigurations.size());
     }
 }

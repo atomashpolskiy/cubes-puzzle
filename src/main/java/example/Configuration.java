@@ -53,7 +53,7 @@ public class Configuration {
 
         Map<CubeSide, SideConfiguration> sides = configuration.getSides();
 
-        List<Configuration> horizontalRotations = new ArrayList<>(4 + 1);
+        Set<Configuration> horizontalRotations = new HashSet<>((int)(4 / 0.75));
         // add original solution
         horizontalRotations.add(buildConfiguration(sides,
                 new Shift(CubeSide.UPPER, CubeSide.UPPER, 0),
@@ -64,10 +64,10 @@ public class Configuration {
                 new Shift(CubeSide.NORTHERN, CubeSide.NORTHERN, 0)
         ));
 
-        // add 3 horizontal rotations (N -> E -> S -> W); U & B rotating clockwise by 90' at a time
+        // add 3 horizontal rotations (N -> E -> S -> W); U rotating clockwise & B rotating counter-clockwise by 90' at a time
         horizontalRotations.add(buildConfiguration(sides,
                 new Shift(CubeSide.UPPER, CubeSide.UPPER, 1),
-                new Shift(CubeSide.BOTTOM, CubeSide.BOTTOM, 1),
+                new Shift(CubeSide.BOTTOM, CubeSide.BOTTOM, -1),
                 new Shift(CubeSide.WESTERN, CubeSide.NORTHERN, 0),
                 new Shift(CubeSide.NORTHERN, CubeSide.EASTERN, 0),
                 new Shift(CubeSide.EASTERN, CubeSide.SOUTHERN, 0),
@@ -76,7 +76,7 @@ public class Configuration {
 
         horizontalRotations.add(buildConfiguration(sides,
                 new Shift(CubeSide.UPPER, CubeSide.UPPER, 2),
-                new Shift(CubeSide.BOTTOM, CubeSide.BOTTOM, 2),
+                new Shift(CubeSide.BOTTOM, CubeSide.BOTTOM, -2),
                 new Shift(CubeSide.WESTERN, CubeSide.EASTERN, 0),
                 new Shift(CubeSide.NORTHERN, CubeSide.SOUTHERN, 0),
                 new Shift(CubeSide.EASTERN, CubeSide.WESTERN, 0),
@@ -85,23 +85,26 @@ public class Configuration {
 
         horizontalRotations.add(buildConfiguration(sides,
                 new Shift(CubeSide.UPPER, CubeSide.UPPER, 3),
-                new Shift(CubeSide.BOTTOM, CubeSide.BOTTOM, 3),
+                new Shift(CubeSide.BOTTOM, CubeSide.BOTTOM, -3),
                 new Shift(CubeSide.WESTERN, CubeSide.SOUTHERN, 0),
                 new Shift(CubeSide.NORTHERN, CubeSide.WESTERN, 0),
                 new Shift(CubeSide.EASTERN, CubeSide.NORTHERN, 0),
                 new Shift(CubeSide.SOUTHERN, CubeSide.EASTERN, 0)
         ));
 
-        return buildSymmetricConfigurations(horizontalRotations);
+        return horizontalRotations;
     }
 
     // TODO: detect symmetry for flips (we can do a "real" flip and eliminate several duplicate configurations)
     // by "real" flip we mean flip+rotation (in contrast with cube's flips)
+    @SuppressWarnings("unused")
     private static Set<Configuration> buildSymmetricConfigurations(List<Configuration> horizontalRotations) {
 
         Set<Configuration> configurations = new HashSet<>((int)(horizontalRotations.size() * 6 / 0.75));
 
         for (Configuration horizontalRotation : horizontalRotations) {
+
+            configurations.add(horizontalRotation);
 
             Map<CubeSide, SideConfiguration> sides = horizontalRotation.getSides();
             // 3 clockwise rotations (U -> E -> B -> W); S & N rotating clockwise by 90' at a time
