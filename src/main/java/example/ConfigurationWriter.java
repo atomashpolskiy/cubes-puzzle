@@ -250,7 +250,7 @@ public class ConfigurationWriter implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         writer.flush();
         writer.close();
     }
