@@ -21,34 +21,30 @@ class HappyCubeSolver {
         Side upperSide = sides.get(CubeSide.UPPER), bottomSide = sides.get(CubeSide.BOTTOM),
             southernSide = sides.get(CubeSide.SOUTHERN);
 
-        List<Face> freeFaces = new LinkedList<>(faces);
+        List<Face> freeFaces = new LinkedList<>();
         List<Side> fixedSides = new ArrayList<>(faces.size() + 1);
-        cube.setFace(CubeSide.UPPER, freeFaces.remove(0));
+        cube.setFace(CubeSide.UPPER, faces.get(0));
         fixedSides.add(upperSide);
         fixedSides.add(bottomSide);
         fixedSides.add(southernSide);
 
-        int len = freeFaces.size();
-        for (int i = 0; i < len; i++) {
-            Face bottomFace = freeFaces.remove(i);
-            for (int j = 0; j < len - 1; j++) {
+        int len = faces.size();
+        for (int i = 1; i < len; i++) {
+            Face bottomFace = faces.get(i);
+            for (int j = 1; j < len; j++) {
                 if (i == j) {
                     continue;
                 }
-                Face southernFace = freeFaces.remove(j);
+                Face southernFace = faces.get(j);
                 cube.setFace(CubeSide.BOTTOM, bottomFace);
                 cube.setFace(CubeSide.SOUTHERN, southernFace);
-                buildCubes(cube, freeFaces, 0, fixedSides);
-                if (j >= freeFaces.size()) {
-                    freeFaces.add(southernFace);
-                } else {
-                    freeFaces.add(j, southernFace);
+                for (int k = 1; k < faces.size(); k++) {
+                    if (k != i && k != j) {
+                        freeFaces.add(faces.get(k));
+                    }
                 }
-            }
-            if (i >= freeFaces.size()) {
-                freeFaces.add(bottomFace);
-            } else {
-                freeFaces.add(i, bottomFace);
+                buildCubes(cube, freeFaces, 0, fixedSides);
+                freeFaces.clear();
             }
         }
     }
@@ -60,15 +56,14 @@ class HappyCubeSolver {
                 visitor.visit(cube);
             }
         } else {
-            for (Map.Entry<CubeSide, Side> entry : cube.getSides().entrySet()) {
-                CubeSide sideType = entry.getKey();
-                Side side = entry.getValue();
+            for (CubeSide cubeSide : CubeSide.values()) {
+                Side side = cube.getSides().get(cubeSide);
                 if (!fixedSides.contains(side)) {
                     Face face = faces.get(fixedCount);
-                    cube.setFace(sideType, face);
+                    cube.setFace(cubeSide, face);
                     fixedSides.add(side);
                     buildCubes(cube, faces, fixedCount + 1, fixedSides);
-                    cube.removeFace(sideType);
+                    cube.removeFace(cubeSide);
                     fixedSides.remove(side);
                 }
             }

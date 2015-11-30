@@ -5,11 +5,9 @@ import example.Cube;
 import example.CubeSide;
 import example.CubeVisitor;
 import example.Face;
-import example.Side;
 import org.junit.Test;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -20,8 +18,8 @@ public class CubeTest {
     @Test
     public void isComplete() {
         Cube cube = new Cube();
-        for (Map.Entry<CubeSide, Side> entry : cube.getSides().entrySet()) {
-            cube.setFace(entry.getKey(), new Face(new byte[] {1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1}, 5));
+        for (CubeSide cubeSide : CubeSide.values()) {
+            cube.setFace(cubeSide, new Face(new byte[] {1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1}, 5));
         }
 
         assertTrue(cube.isComplete());

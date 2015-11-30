@@ -31,29 +31,37 @@ import java.util.Map;
 public class Cube {
 
     private final Map<CubeSide, Side> sides;
+    private final List<Side> sideList;
     private final int sidesCount;
     private Map<Side, SideEdges> sideEdges;
 
     {
         sides = new HashMap<>((int)(6 / 0.75));
+        sideList = new ArrayList<>(6 + 1);
         // upper side
         Side upperSide = new ModificationAwareSide(CubeVertex.UWN, CubeVertex.UEN, CubeVertex.UES, CubeVertex.UWS);
         sides.put(CubeSide.UPPER, upperSide);
+        sideList.add(upperSide);
         // bottom side
         Side bottomSide = new ModificationAwareSide(CubeVertex.DEN, CubeVertex.DWN, CubeVertex.DWS, CubeVertex.DES);
         sides.put(CubeSide.BOTTOM, bottomSide);
+        sideList.add(bottomSide);
         // northern side
         Side northernSide = new ModificationAwareSide(CubeVertex.UEN, CubeVertex.UWN, CubeVertex.DWN, CubeVertex.DEN);
         sides.put(CubeSide.NORTHERN, northernSide);
+        sideList.add(northernSide);
         // southern side
         Side southernSide = new ModificationAwareSide(CubeVertex.UWS, CubeVertex.UES, CubeVertex.DES, CubeVertex.DWS);
         sides.put(CubeSide.SOUTHERN, southernSide);
+        sideList.add(southernSide);
         // eastern side
         Side easternSide = new ModificationAwareSide(CubeVertex.UES, CubeVertex.UEN, CubeVertex.DEN, CubeVertex.DES);
         sides.put(CubeSide.EASTERN, easternSide);
+        sideList.add(easternSide);
         // western side
         Side westernSide = new ModificationAwareSide(CubeVertex.UWN, CubeVertex.UWS, CubeVertex.DWS, CubeVertex.DWN);
         sides.put(CubeSide.WESTERN, westernSide);
+        sideList.add(westernSide);
 
         sidesCount = sides.size();
 
@@ -89,8 +97,8 @@ public class Cube {
             throw new IllegalStateException("Cube is not complete");
         }
 
-        for (SideEdges sideEdge : sideEdges.values()) {
-            if (!sideEdge.isConnected()) {
+        for (Side side : sideList) {
+            if (!sideEdges.get(side).isConnected()) {
                 return false;
             }
         }
@@ -102,7 +110,7 @@ public class Cube {
      */
     public boolean isComplete() {
 
-        for (Side side : sides.values()) {
+        for (Side side : sideList) {
             if (!((ModificationAwareSide)side).isOccupied()) {
                 return false;
             }
@@ -123,7 +131,6 @@ public class Cube {
             throw new IllegalStateException("Can't visit rotations: cube is not complete");
         }
 
-        List<Side> sideList = new ArrayList<>(sides.values());
         visitRotations(visitor, sideList, 0);
     }
 
@@ -165,17 +172,14 @@ public class Cube {
         @Override
         protected void setFace(Face face) {
             super.setFace(face);
-            sideEdges.get(this).setChanged();
         }
 
         protected void rotate() {
             super.rotate();
-            sideEdges.get(this).setChanged();
         }
 
         protected void flip() {
             super.flip();
-            sideEdges.get(this).setChanged();
         }
     }
 
@@ -230,7 +234,7 @@ public class Cube {
                         // -- need to check
                         CubeVertex vertex = (i == 0)? v1 : v2;
                         boolean hasPlug = false;
-                        for (Side side : sides.values()) {
+                        for (Side side : sideList) {
                             if (side.hasVertex(vertex)) {
                                 Edge edge = side.getEdge(vertex);
                                 Iterator<Byte> iter = side.isFlipped()? edge.getPointsReverse() : edge.getPoints();
@@ -255,7 +259,6 @@ public class Cube {
 
     private static class SideEdges {
 
-        private boolean isChanged;
         private boolean isConnected;
         private CubeEdge[] cubeEdges;
 
@@ -266,24 +269,15 @@ public class Cube {
         public boolean isConnected() {
 
             boolean isConnected = this.isConnected;
-            // TODO: this causes some weird behaviour when solving all 720 possible cube configurations
-            // need to check later..
-//            if (isChanged) {
-                for (CubeEdge cubeEdge : cubeEdges) {
-                    isConnected = cubeEdge.isConnected();
-                    if (!isConnected) {
-                        break;
-                    }
+            for (CubeEdge cubeEdge : cubeEdges) {
+                isConnected = cubeEdge.isConnected();
+                if (!isConnected) {
+                    break;
                 }
-                isChanged = false;
-//            }
+            }
 
             this.isConnected = isConnected;
             return isConnected;
-        }
-
-        public void setChanged() {
-            isChanged = true;
         }
     }
 }

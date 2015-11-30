@@ -26,7 +26,7 @@ public class SolverTest {
         CountingCubeVisitor visitor1 = new CountingCubeVisitor();
         Solver.happyCube(faces).cubeVisitor(visitor1).solve();
 
-        assertEquals(52, visitor1.getResultCount());
+        assertEquals(64, visitor1.getResultCount());
     }
 
     @Test
