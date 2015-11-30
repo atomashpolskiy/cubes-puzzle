@@ -34,6 +34,7 @@ public class Cube {
     private final List<Side> sideList;
     private final int sidesCount;
     private Map<Side, SideEdges> sideEdges;
+    private Map<CubeVertex, List<Side>> vertexSides;
 
     {
         sides = new HashMap<>((int)(6 / 0.75));
@@ -85,6 +86,16 @@ public class Cube {
         sideEdges.put(southernSide, new SideEdges(US, DS, ES, WS));
         sideEdges.put(easternSide, new SideEdges(UE, DE, ES, EN));
         sideEdges.put(westernSide, new SideEdges(UW, DW, WS, WN));
+
+        vertexSides = new HashMap<>((int)(8 / 0.75));
+        vertexSides.put(CubeVertex.UWN, Arrays.asList(upperSide, westernSide, northernSide));
+        vertexSides.put(CubeVertex.UEN, Arrays.asList(upperSide, easternSide, northernSide));
+        vertexSides.put(CubeVertex.UWS, Arrays.asList(upperSide, westernSide, southernSide));
+        vertexSides.put(CubeVertex.UES, Arrays.asList(upperSide, easternSide, southernSide));
+        vertexSides.put(CubeVertex.DWN, Arrays.asList(bottomSide, westernSide, northernSide));
+        vertexSides.put(CubeVertex.DEN, Arrays.asList(bottomSide, easternSide, northernSide));
+        vertexSides.put(CubeVertex.DWS, Arrays.asList(bottomSide, westernSide, southernSide));
+        vertexSides.put(CubeVertex.DES, Arrays.asList(bottomSide, easternSide, southernSide));
     }
 
     public Map<CubeSide, Side> getSides() {
@@ -234,14 +245,12 @@ public class Cube {
                         // -- need to check
                         CubeVertex vertex = (i == 0)? v1 : v2;
                         boolean hasPlug = false;
-                        for (Side side : sideList) {
-                            if (side.hasVertex(vertex)) {
-                                Edge edge = side.getEdge(vertex);
-                                Iterator<Byte> iter = side.isFlipped()? edge.getPointsReverse() : edge.getPoints();
-                                hasPlug = iter.next() == 1;
-                                if (hasPlug) {
-                                    break;
-                                }
+                        for (Side side : vertexSides.get(vertex)) {
+                            Edge edge = side.getEdge(vertex);
+                            Iterator<Byte> iter = side.isFlipped()? edge.getPointsReverse() : edge.getPoints();
+                            hasPlug = iter.next() == 1;
+                            if (hasPlug) {
+                                break;
                             }
                         }
                         if (!hasPlug) {
