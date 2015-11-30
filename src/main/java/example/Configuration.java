@@ -1,9 +1,7 @@
 package example;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -93,78 +91,6 @@ public class Configuration {
         ));
 
         return horizontalRotations;
-    }
-
-    // TODO: detect symmetry for flips (we can do a "real" flip and eliminate several duplicate configurations)
-    // by "real" flip we mean flip+rotation (in contrast with cube's flips)
-    @SuppressWarnings("unused")
-    private static Set<Configuration> buildSymmetricConfigurations(List<Configuration> horizontalRotations) {
-
-        Set<Configuration> configurations = new HashSet<>((int)(horizontalRotations.size() * 6 / 0.75));
-
-        for (Configuration horizontalRotation : horizontalRotations) {
-
-            configurations.add(horizontalRotation);
-
-            Map<CubeSide, SideConfiguration> sides = horizontalRotation.getSides();
-            // 3 clockwise rotations (U -> E -> B -> W); S & N rotating clockwise by 90' at a time
-            configurations.add(buildConfiguration(sides,
-                    new Shift(CubeSide.UPPER, CubeSide.EASTERN, 0),
-                    new Shift(CubeSide.EASTERN, CubeSide.BOTTOM, 0),
-                    new Shift(CubeSide.BOTTOM, CubeSide.WESTERN, 0),
-                    new Shift(CubeSide.WESTERN, CubeSide.UPPER, 0),
-                    new Shift(CubeSide.SOUTHERN, CubeSide.SOUTHERN, 1),
-                    new Shift(CubeSide.NORTHERN, CubeSide.NORTHERN, 1)
-            ));
-
-            configurations.add(buildConfiguration(sides,
-                    new Shift(CubeSide.UPPER, CubeSide.BOTTOM, 0),
-                    new Shift(CubeSide.EASTERN, CubeSide.WESTERN, 0),
-                    new Shift(CubeSide.BOTTOM, CubeSide.UPPER, 0),
-                    new Shift(CubeSide.WESTERN, CubeSide.EASTERN, 0),
-                    new Shift(CubeSide.SOUTHERN, CubeSide.SOUTHERN, 2),
-                    new Shift(CubeSide.NORTHERN, CubeSide.NORTHERN, 2)
-            ));
-
-            configurations.add(buildConfiguration(sides,
-                    new Shift(CubeSide.UPPER, CubeSide.WESTERN, 0),
-                    new Shift(CubeSide.EASTERN, CubeSide.UPPER, 0),
-                    new Shift(CubeSide.BOTTOM, CubeSide.EASTERN, 0),
-                    new Shift(CubeSide.WESTERN, CubeSide.BOTTOM, 0),
-                    new Shift(CubeSide.SOUTHERN, CubeSide.SOUTHERN, 3),
-                    new Shift(CubeSide.NORTHERN, CubeSide.NORTHERN, 3)
-            ));
-
-            // 3 forward rotations (U -> N -> B -> S); W & E rotating forward by 90' at a time
-            configurations.add(buildConfiguration(sides,
-                    new Shift(CubeSide.UPPER, CubeSide.NORTHERN, 0),
-                    new Shift(CubeSide.NORTHERN, CubeSide.BOTTOM, 0),
-                    new Shift(CubeSide.BOTTOM, CubeSide.SOUTHERN, 0),
-                    new Shift(CubeSide.SOUTHERN, CubeSide.UPPER, 0),
-                    new Shift(CubeSide.WESTERN, CubeSide.WESTERN, 1),
-                    new Shift(CubeSide.EASTERN, CubeSide.EASTERN, 1)
-            ));
-
-            configurations.add(buildConfiguration(sides,
-                    new Shift(CubeSide.UPPER, CubeSide.BOTTOM, 0),
-                    new Shift(CubeSide.NORTHERN, CubeSide.SOUTHERN, 0),
-                    new Shift(CubeSide.BOTTOM, CubeSide.UPPER, 0),
-                    new Shift(CubeSide.SOUTHERN, CubeSide.NORTHERN, 0),
-                    new Shift(CubeSide.WESTERN, CubeSide.WESTERN, 2),
-                    new Shift(CubeSide.EASTERN, CubeSide.EASTERN, 2)
-            ));
-
-            configurations.add(buildConfiguration(sides,
-                    new Shift(CubeSide.UPPER, CubeSide.SOUTHERN, 0),
-                    new Shift(CubeSide.NORTHERN, CubeSide.UPPER, 0),
-                    new Shift(CubeSide.BOTTOM, CubeSide.NORTHERN, 0),
-                    new Shift(CubeSide.SOUTHERN, CubeSide.BOTTOM, 0),
-                    new Shift(CubeSide.WESTERN, CubeSide.WESTERN, 3),
-                    new Shift(CubeSide.EASTERN, CubeSide.EASTERN, 3)
-            ));
-        }
-
-        return configurations;
     }
 
     private static Configuration buildConfiguration(Map<CubeSide, ? extends SideConfiguration> horizontalRotation, Shift... shifts) {
