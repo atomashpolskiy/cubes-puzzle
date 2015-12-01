@@ -3,7 +3,6 @@ package example;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -228,16 +227,16 @@ public class Cube {
 
             // if two sides can connect in straight position,
             // then they will also connect in flipped position
-            Iterator<Byte> iter1 = s1.isFlipped()? e1.getPointsReverse() : e1.getPoints();
-            Iterator<Byte> iter2 = s2.isFlipped()? e2.getPoints() : e2.getPointsReverse();
+            byte[] iter1 = s1.isFlipped()? e1.getPointsReverse() : e1.getPoints();
+            byte[] iter2 = s2.isFlipped()? e2.getPoints() : e2.getPointsReverse();
 
             int edgeSize = e1.getSize();
             int i = 0;
-            while (iter1.hasNext()) {
+            for (int k = 0; k < iter1.length; k++) {
                 // check that one point is a plug and another is a socket
-                Byte p1 = iter1.next(), p2 = iter2.next();
-                if (p1.equals(p2)) {
-                    if (p1 == 0 && p2 == 0 && ((i == 0) || (i == edgeSize-1))) {
+                byte p1 = iter1[k], p2 = iter2[k];
+                if (p1 == p2) {
+                    if (p1 == 0 && ((i == 0) || (i == edgeSize-1))) {
                         // special case here: cube's vertex
                         // even if compared face's edges both have sockets,
                         // there's still two adjacent cube's edges,
@@ -247,8 +246,8 @@ public class Cube {
                         boolean hasPlug = false;
                         for (Side side : vertexSides.get(vertex)) {
                             Edge edge = side.getEdge(vertex);
-                            Iterator<Byte> iter = side.isFlipped()? edge.getPointsReverse() : edge.getPoints();
-                            hasPlug = iter.next() == 1;
+                            byte[] iter = side.isFlipped()? edge.getPointsReverse() : edge.getPoints();
+                            hasPlug = iter[0] == 1;
                             if (hasPlug) {
                                 break;
                             }

@@ -77,7 +77,11 @@ public class Face {
         private final int endingPoint;
         private final int size;
 
+        private final byte[] points;
+        private final byte[] pointsReverse;
+
         DefaultEdge(int startingPoint, int size) {
+
             this.startingPoint = startingPoint;
             this.endingPoint = startingPoint + size - 1;
             this.size = size;
@@ -92,6 +96,15 @@ public class Face {
             if (!hasDifferentPointTypes) {
                 throw new IllegalStateException("Invalid edge: all points are " + (edges[0] == 0? "sockets" : "plugs"));
             }
+
+            points = Arrays.copyOfRange(edges, startingPoint, endingPoint + 1);
+            if (endingPoint == edges.length) {
+                points[points.length - 1] = edges[0];
+            }
+            pointsReverse = new byte[points.length];
+            for (int i = 0; i < points.length; i++) {
+                pointsReverse[i] = points[points.length - i - 1];
+            }
         }
 
         @Override
@@ -100,16 +113,17 @@ public class Face {
         }
 
         @Override
-        public byte[] asArray() {
-            byte[] points = Arrays.copyOfRange(edges, startingPoint, endingPoint + 1);
-            if (endingPoint == edges.length) {
-                points[points.length - 1] = edges[0];
-            }
+        public byte[] getPoints() {
             return points;
         }
 
         @Override
-        public Iterator<Byte> getPoints() {
+        public byte[] getPointsReverse() {
+            return pointsReverse;
+        }
+
+        @Override
+        public Iterator<Byte> iterator() {
             return new Iterator<Byte>() {
 
                 private int currentPoint = startingPoint;
@@ -133,7 +147,7 @@ public class Face {
         }
 
         @Override
-        public Iterator<Byte> getPointsReverse() {
+        public Iterator<Byte> iteratorReverse() {
             return new Iterator<Byte>() {
 
                 private int currentPoint = endingPoint;
@@ -158,7 +172,7 @@ public class Face {
 
         @Override
         public String toString() {
-            return Arrays.toString(asArray());
+            return Arrays.toString(getPoints());
         }
     }
 

@@ -22,7 +22,7 @@ public class Matchers {
 
         for (int i = 0; i < edges.length; i++) {
             Edge mockedEdge = mock(Edge.class);
-            when(mockedEdge.asArray()).thenReturn(edges[i]);
+            when(mockedEdge.getPoints()).thenReturn(edges[i]);
             matchers[i] = new EdgeMatcher(mockedEdge, shouldCompareReversed);
         }
 

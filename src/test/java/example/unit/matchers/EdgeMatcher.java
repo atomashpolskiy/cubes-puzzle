@@ -18,7 +18,7 @@ public class EdgeMatcher extends BaseMatcher<Edge> {
 
     public EdgeMatcher(Edge expectedEdge, boolean shouldCompareReversed) {
 
-        List<Byte> points = Bytes.asList(expectedEdge.asArray());
+        List<Byte> points = Bytes.asList(expectedEdge.getPoints());
         if (shouldCompareReversed) {
             Collections.reverse(points);
         }
@@ -43,7 +43,7 @@ public class EdgeMatcher extends BaseMatcher<Edge> {
     private Byte[] collectPoints(Edge edge) {
 
         List<Byte> points = new ArrayList<>();
-        Iterator<Byte> iter = reverse? edge.getPointsReverse() : edge.getPoints();
+        Iterator<Byte> iter = reverse? edge.iteratorReverse() : edge.iterator();
         while (iter.hasNext()) {
             points.add(iter.next());
         }

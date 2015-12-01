@@ -130,15 +130,15 @@ public class ConfigurationWriter implements AutoCloseable {
     private Block buildBlock(boolean reverse, Edge... edges) {
 
         Edge upperEdge = edges[0];
-        final Iterator<Byte> upperPoints = reverse? upperEdge.getPointsReverse() : upperEdge.getPoints();
+        final Iterator<Byte> upperPoints = reverse? upperEdge.iteratorReverse() : upperEdge.iterator();
         Edge rightEdge = edges[1];
-        final Iterator<Byte> rightPoints = reverse? rightEdge.getPointsReverse() : rightEdge.getPoints();
+        final Iterator<Byte> rightPoints = reverse? rightEdge.iteratorReverse() : rightEdge.iterator();
 
         // bottom and left edges are printed in reverse order
         Edge bottomEdge = edges[2];
-        final Iterator<Byte> bottomPoints = reverse? bottomEdge.getPoints() : bottomEdge.getPointsReverse();
+        final Iterator<Byte> bottomPoints = reverse? bottomEdge.iterator() : bottomEdge.iteratorReverse();
         Edge leftEdge = edges[3];
-        final Iterator<Byte> leftPoints = reverse? leftEdge.getPoints() : leftEdge.getPointsReverse();
+        final Iterator<Byte> leftPoints = reverse? leftEdge.iterator() : leftEdge.iteratorReverse();
 
         return new Block() {
             @Override
